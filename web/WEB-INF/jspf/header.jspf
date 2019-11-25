@@ -1,0 +1,47 @@
+<%@ include file="/WEB-INF/jspf/directive/page.jspf" %>
+<%@ include file="/WEB-INF/jspf/directive/taglib.jspf" %>
+
+<fmt:setLocale value="${currentLocale}" scope="session"/>
+<fmt:setBundle basename="resources"/>
+<nav class="navbar navbar-default">
+    <c:if test="${not empty user}">
+
+        <div class="container-fluid">
+            <ul class="nav navbar-nav">
+                <c:choose>
+                    <c:when test="${userRole.name == 'admin' }">
+                    </c:when>
+                    <c:when test="${userRole.name == 'client' }">
+                        <li><a href="controller?command=createElectionForm"><fmt:message key="create.election"/></a></li>
+                        <li><a href="controller?command=viewAllElections"><fmt:message key="all.elections"/></a></li>
+                        <li><a href="controller?command=myElections"><fmt:message key="my.elections"/></a></li>
+                    </c:when>
+                </c:choose>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a>${user.login}</a></li>
+                <li><a href="controller?command=viewSettings&email=${user.id}"><fmt:message key="profile"/></a></li>
+                <li><a href="controller?command=logout"><fmt:message key="logout"/></a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        <fmt:message key="select"/> <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="controller?command=changeLocale&locale=ru"><fmt:message key="ua"/></a></li>
+                        <li><a href="controller?command=changeLocale&locale=en"><fmt:message key="en"/></a></li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+
+    </c:if>
+    <c:if test="${empty user and title ne 'Login'}">
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="login.jsp"><fmt:message key="login"/></a></li>
+            <li><a href="register.jsp"><fmt:message key="register"/></a></li>
+        </ul>
+    </c:if>
+</nav>
+
