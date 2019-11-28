@@ -45,6 +45,21 @@
                 </option>
             </select>
         </div>
+        <div class="form-group">
+            <label><fmt:message key="country"/>
+                <input type="text" name="country" class="form-control">
+            </label>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="city"/>
+                <input type="text" name="city" class="form-control">
+            </label>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="topic"/>
+                <input type="text" name="topic" class="form-control">
+            </label>
+        </div>
         <div class="form-group" id="create_election">
             <fmt:message key="choice"/>
             <button onclick="myFunction()" type="button">Add choice</button>

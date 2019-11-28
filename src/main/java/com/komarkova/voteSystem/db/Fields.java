@@ -16,11 +16,20 @@ public class Fields {
     static final String ELECTION_QUESTION_TEXT = "question_text";
     static final String ELECTION_ACCESS = "access";
     static final String ELECTION_STATUS = "status";
-    static final String ELECTION_COUNTS = "election_counts";
     static final String ELECTION_USER_ID = "user_id";
+    static final String ELECTION_DATE_OF_REGISTER = "date_of_register";
+    static final String ELECTION_CITY = "city";
+    static final String ELECTION_COUNTRY = "country";
 
     static final String CHOICE_ID = "choice_id";
     static final String CHOICE = "choice";
     static final String COUNTS="counts";
+
+    static final String TRANSACTION_ID="transaction_id";
+    static final String TRANSACTION_FIRST_DATE="first_date";
+    static final String TRANSACTION_LAST_DATE="last_date";
+    static final String TRANSACTION_SUM = "sum";
+    static final String TRANSACTION_TYPE = "type";
+
 
 }

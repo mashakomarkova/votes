@@ -14,6 +14,12 @@
 <c:if test="${isUpdatedElection}">
     <fmt:message key="data.success"/>
 </c:if>
+<c:if test="${isPaidForTop}">
+    <fmt:message key="thanks.payment"/>
+</c:if>
+<c:if test="${emailConfirmed}">
+    <fmt:message key="data.success"/>
+</c:if>
 <%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </body>
 </html>

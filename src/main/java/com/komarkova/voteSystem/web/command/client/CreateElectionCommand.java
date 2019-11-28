@@ -19,9 +19,13 @@ public class CreateElectionCommand extends Command {
         HttpSession session = request.getSession();
         String questionText = request.getParameter("questionText");
         String access = request.getParameter("access");
+        String city = request.getParameter("city");
+        String country = request.getParameter("country");
+        String topic = request.getParameter("topic");
         String[] choices = request.getParameterValues("choices");
         String user = session.getAttribute("user").toString();
-        Long electionId = DBManager.getInstance().createElection(questionText, access, Long.parseLong(user));
+        Long electionId = DBManager.getInstance().createElection(questionText, access, Long.parseLong(user), city, country);
+        DBManager.getInstance().addTopic(topic, electionId);
         DBManager.getInstance().createChoice(choices, electionId);
         return Path.PAGE_PROFILE;
     }

@@ -15,6 +15,8 @@
                         <li><a href="controller?command=createElectionForm"><fmt:message key="create.election"/></a></li>
                         <li><a href="controller?command=viewAllElections"><fmt:message key="all.elections"/></a></li>
                         <li><a href="controller?command=myElections"><fmt:message key="my.elections"/></a></li>
+                        <li><a href="controller?command=myTransactions"><fmt:message key="my.transactions"/></a></li>
+                        <li><a href="controller?command=favoriteElections"><fmt:message key="favorite"/></a></li>
                     </c:when>
                 </c:choose>
             </ul>

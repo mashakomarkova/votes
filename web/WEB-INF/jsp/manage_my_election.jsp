@@ -56,8 +56,37 @@
         <input type="hidden" name="electionId" value="${myElection.id}">
         <input type="submit" value="<fmt:message key="delete.election"/>" class="btn btn-lg btn-danger">
     </form>
+    <form action="controller" method="post">
+        <input type="hidden" name="command" value="payment">
+        <input type="hidden" name="electionId" value="${myElection.id}">
+        <div class="form-group">
+            <h2>
+                <fmt:message key="get.to.top"/>
+            </h2>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="days.in.top"/>
+                <input type="text" name="days" class="form-control">
+            </label>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="card.number"/>
+                <input type="text" name="cardNumber" class="form-control">
+            </label>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="validity"/>
+                <input type="text" name="validity" class="form-control">
+            </label>
+        </div>
+        <div class="form-group">
+            <label><fmt:message key="cvv"/>
+                <input type="text" name="cvv" class="form-control">
+            </label>
+        </div>
+        <input type="submit" class="btn btn-lg btn-success">
+    </form>
 </div>
-
 
 <%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </body>

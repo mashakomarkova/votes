@@ -3,6 +3,7 @@ package com.komarkova.voteSystem.db;
 import com.komarkova.voteSystem.db.bean.PollResultBean;
 import com.komarkova.voteSystem.db.entity.Choice;
 import com.komarkova.voteSystem.db.entity.Election;
+import com.komarkova.voteSystem.db.entity.Transaction;
 import com.komarkova.voteSystem.db.entity.User;
 import com.komarkova.voteSystem.exception.DBException;
 import com.komarkova.voteSystem.exception.Messages;
@@ -25,11 +26,16 @@ public class DBManager {
     private final static String SQL_INSERT_USER = "INSERT INTO users(username, email, password," +
             "first_name, last_name) VALUES(?, ?, MD5(?), ?, ?);";
 
-    private static final String SQL_CREATE_ELECTION = "INSERT INTO elections(question_text, access, user_id) VALUES(?,?,?);";
+    private static final String SQL_CREATE_ELECTION = "INSERT INTO elections(question_text, access, status, user_id, date_of_register, city, country) VALUES(?,?,'plain',?, CURDATE(),?,? );";
 
     private static final String SQL_CREATE_CHOICES = "INSERT INTO choices(choice, election_id) VALUES(?,?)";
 
     private static final String SQL_VOTE_ELECTION = "INSERT INTO votes(user_id, election_id, choice_id) VALUES(?,?,?);";
+
+    private static final String SQL_ADD_TOPIC = "INSERT INTO topics(topic,election_id) VALUES(?,?)";
+
+    private static final String SQL_ADD_TRANSACTION = "INSERT INTO transactions(first_date, last_date, sum, type, election_id) VALUES(CURDATE(),DATE_ADD(CURDATE(), INTERVAL ? DAY),2*?,'top', ?);";
+
 
     //SELECTS
     private static final String SQL_FIND_USER_BY_EMAIL = "SELECT * FROM users WHERE email=? AND password=MD5(?)";
@@ -38,8 +44,17 @@ public class DBManager {
 
     private static final String SQL_FIND_ALL_ELECTIONS = "SELECT * FROM elections WHERE access='public'";
 
+    private static final String SQL_FIND_TOP_ELECTIONS = "SELECT * FROM elections where access='public' and status='top' " +
+            "ORDER BY rand() LIMIT 5;";
+
+
+    private static final String SQL_SEARCH_ELECTIONS = "SELECT elections.election_id, elections.question_text, elections.access," +
+            "elections.status, elections.user_id, elections.date_of_register, elections.city, elections.country" +
+            "  FROM elections, topics WHERE elections.question_text like ? OR elections.country like ? or elections.city like ? or" +
+            " topics.topic=? and elections.access='public' and topics.election_id=elections.election_id";
+
     private static final String SQL_FIND_MY_ELECTIONS = "SELECT elections.election_id, elections.question_text, elections.access, elections.status," +
-            " elections.user_id FROM elections, users WHERE users.user_id=elections.user_id AND elections.user_id=?";
+            " elections.user_id, elections.date_of_register, elections.city, elections.country FROM elections, users WHERE users.user_id=elections.user_id AND elections.user_id=?";
 
     private static final String SQL_FIND_ELECTION_BY_ID = "SELECT * FROM elections WHERE election_id=?";
 
@@ -48,13 +63,26 @@ public class DBManager {
 
     private static final String SQL_FIND_USER_BY_EMAIL_ONLY = "SELECT * FROM users WHERE user_id=?";
 
-    private static final String SQL_SEE_RESULTS="select distinct choice, count(*) as 'counts' from choices, votes where " +
+    private static final String SQL_SEE_RESULTS = "select distinct choice, count(*) as 'counts' from choices, votes where " +
             "votes.choice_id=choices.choice_id and votes.election_id=(select election_id from " +
             "elections where election_id=?) group by votes.choice_id;";
 
+    private static final String SQL_FIND_TRANSACTIONS = "SELECT transactions.transaction_id, transactions.first_date, transactions.last_date, transactions.type, transactions.sum, " +
+            "transactions.election_id FROM transactions, elections, users " +
+            "WHERE transactions.election_id=elections.election_id AND elections.user_id=users.user_id " +
+            "AND elections.user_id=?;";
+
+    private static final String SQL_SORT_ELECTIONS = "SELECT * FROM elections ORDER BY ?;";
+
+    private static final String SQL_SORT_BY_POPULARITY = "SELECT elections.election_id,elections.question_text, elections.access, elections.status,\n" +
+            "elections.user_id, elections.date_of_register, elections.city, elections.country " +
+            "FROM elections, votes where votes.election_id=elections.election_id " +
+            "group by votes.election_id having count(*);";
 
     //UPDATES
     private static final String SQL_UPDATE_USER_EMAIL = "UPDATE users SET email=? WHERE user_id=?;";
+
+    private static final String SQL_UPDATE_USER_ROLE = "UPDATE users SET role_id=? WHERE user_id=?;";
 
     private static final String SQL_UPDATE_USER_PASS = "UPDATE users SET password=MD5(?) WHERE user_id=?;";
 
@@ -66,6 +94,8 @@ public class DBManager {
 
     //DELETES
     private static final String SQL_DELETE_ELECTION_BY_ID = "DELETE FROM elections WHERE election_id=?";
+
+    private static final String SQL_DELETE_ELECTIONS = "DELETE FROM elections WHERE CURDATE()-DATE(date_of_register)>=30";
 
 
     public static synchronized DBManager getInstance() throws DBException {
@@ -285,6 +315,27 @@ public class DBManager {
 
     }
 
+    public void updateUserRoleId(User user) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = getConnection();
+            preparedStatement = con.prepareStatement(SQL_UPDATE_USER_ROLE);
+            int k = 1;
+            preparedStatement.setInt(k++, user.getRoleId());
+            preparedStatement.setLong(k++, user.getId());
+
+            preparedStatement.executeUpdate();
+            con.commit();
+
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement);
+            close(con);
+        }
+    }
     /**
      * Updates user's password
      *
@@ -340,7 +391,28 @@ public class DBManager {
         }
     }
 
-    public Long createElection(String questionText, String access, Long userId) {
+    public void addTopic(String topic, Long electionId) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = getConnection();
+            preparedStatement = con.prepareStatement(SQL_ADD_TOPIC);
+
+            int k = 1;
+            preparedStatement.setString(k++, topic);
+            preparedStatement.setLong(k++, electionId);
+            preparedStatement.executeUpdate();
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement);
+            close(con);
+        }
+    }
+
+    public Long createElection(String questionText, String access, Long userId, String city, String country) {
         Connection con = null;
         PreparedStatement preparedStatement = null;
         Statement stmt = null;
@@ -354,6 +426,8 @@ public class DBManager {
             preparedStatement.setString(k++, questionText);
             preparedStatement.setString(k++, access);
             preparedStatement.setLong(k++, userId);
+            preparedStatement.setString(k++, city);
+            preparedStatement.setString(k++, country);
             preparedStatement.executeUpdate();
             stmt = con.createStatement();
             rs = stmt.executeQuery(SQL_FIND_ELECTION_ID);
@@ -369,6 +443,29 @@ public class DBManager {
             close(con);
         }
         return res;
+    }
+
+    public void addTransaction(Long electionId, int days) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = getConnection();
+            preparedStatement = con.prepareStatement(SQL_ADD_TRANSACTION);
+
+            int k = 1;
+            preparedStatement.setInt(k++, days);
+            preparedStatement.setInt(k++, days);
+            preparedStatement.setLong(k++, electionId);
+
+            preparedStatement.executeUpdate();
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement);
+            close(con);
+        }
     }
 
     public void createChoice(String[] choices, Long electionId) {
@@ -392,7 +489,28 @@ public class DBManager {
             close(con);
         }
     }
+    public List<Election> findTopElections() {
+        List<Election> elections = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SQL_FIND_TOP_ELECTIONS);
+            while (rs.next()) {
+                elections.add(extractAllElections(rs));
 
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, stmt, rs);
+        }
+        return elections;
+    }
     public List<Election> findAllElections() {
         List<Election> elections = new ArrayList<>();
         Statement stmt = null;
@@ -412,6 +530,33 @@ public class DBManager {
             e.printStackTrace();
         } finally {
             close(con, stmt, rs);
+        }
+        return elections;
+    }
+
+    public List<Election> searchElections(String keys, String country, String city, String topic) {
+        List<Election> elections = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            int k = 1;
+            pstmt = con.prepareStatement(SQL_SEARCH_ELECTIONS);
+            pstmt.setString(k++, keys);
+            pstmt.setString(k++, country);
+            pstmt.setString(k++, city);
+            pstmt.setString(k++, topic);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                elections.add(extractAllElections(rs));
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
         }
         return elections;
     }
@@ -486,6 +631,30 @@ public class DBManager {
         return choices;
     }
 
+    public List<Transaction> findMyTransactions(Long userId) {
+        List<Transaction> myTransactions = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(SQL_FIND_TRANSACTIONS);
+            pstmt.setLong(1, userId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                myTransactions.add(extractTransaction(rs));
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return myTransactions;
+    }
+
+
     public List<PollResultBean> seeResults(Long electionId) {
         List<PollResultBean> result = new ArrayList<>();
         PreparedStatement pstmt = null;
@@ -516,6 +685,17 @@ public class DBManager {
         return resultBean;
     }
 
+    private Transaction extractTransaction(ResultSet rs) throws SQLException {
+        Transaction transaction = new Transaction();
+        transaction.setId(rs.getLong(Fields.TRANSACTION_ID));
+        transaction.setFirstDate(rs.getString(Fields.TRANSACTION_FIRST_DATE));
+        transaction.setLastDate(rs.getString(Fields.TRANSACTION_LAST_DATE));
+        transaction.setSum(rs.getString(Fields.TRANSACTION_SUM));
+        transaction.setType(rs.getString(Fields.TRANSACTION_TYPE));
+        transaction.setElectionId(rs.getLong(Fields.ELECTION_ID));
+        return transaction;
+    }
+
     private Choice extractChoice(ResultSet rs) throws SQLException {
         Choice choice = new Choice();
         choice.setId(rs.getLong(Fields.CHOICE_ID));
@@ -532,6 +712,9 @@ public class DBManager {
         election.setAccess(rs.getString(Fields.ELECTION_ACCESS));
         election.setStatus(rs.getString(Fields.ELECTION_STATUS));
         election.setUserId(rs.getLong(Fields.ELECTION_USER_ID));
+        election.setDateOfRegister(rs.getString(Fields.ELECTION_DATE_OF_REGISTER));
+        election.setCity(rs.getString(Fields.ELECTION_CITY));
+        election.setCountry(rs.getString(Fields.ELECTION_COUNTRY));
         return election;
     }
 
@@ -575,6 +758,23 @@ public class DBManager {
         }
     }
 
+    public void deleteElection() {
+        Connection con = null;
+        Statement stmt = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            stmt.executeUpdate(SQL_DELETE_ELECTIONS);
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(stmt);
+            close(con);
+        }
+    }
+
     public void updateElection(String questionText, String access, Long electionId) {
         Connection con = null;
         PreparedStatement preparedStatement = null;
@@ -612,11 +812,48 @@ public class DBManager {
         } catch (DBException | SQLException e) {
             rollback(con);
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             close(preparedStatement);
             close(con);
         }
     }
+
+
+    public List<Election> sortAllElections(String option) {
+        List<Election> elections = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            if ("date_of_register".equals(option)) {
+                pstmt = con.prepareStatement(SQL_SORT_ELECTIONS);
+                int k = 1;
+                pstmt.setString(k++, option);
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    elections.add(extractAllElections(rs));
+                }
+                con.commit();
+
+            } else if ("popular".equals(option)) {
+                pstmt = con.prepareStatement(SQL_SORT_BY_POPULARITY);
+                rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    elections.add(extractAllElections(rs));
+                }
+                con.commit();
+            }
+
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return elections;
+    }
+
+
 }
 

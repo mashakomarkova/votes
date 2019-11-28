@@ -1,7 +1,6 @@
 package com.komarkova.voteSystem.web.command;
 
-import com.komarkova.voteSystem.web.command.client.CreateElectionCommand;
-import com.komarkova.voteSystem.web.command.client.CreateElectionFormCommand;
+import com.komarkova.voteSystem.web.command.client.*;
 import com.komarkova.voteSystem.web.command.common.*;
 
 import java.util.Map;
@@ -32,8 +31,14 @@ public class CommandContainer {
         commands.put("deleteElection", new DeleteElectionCommand());
         commands.put("updateElection", new UpdateElectionCommand());
         commands.put("viewPollResults", new PollResultCommand());
+        commands.put("payment", new PayForTopCommand());
+        commands.put("search", new SearchCommand());
+        commands.put("myTransactions", new ViewMyTransactionsCommand());
+        commands.put("sort", new SortElectionsCommand());
+        commands.put("addToFavorites", new AddFavoritesCommand());
+        commands.put("favoriteElections", new ViewFavoriteElections());
+        commands.put("confirmEmail", new ConfirmEmailCommand());
     }
-
     /**
      * Returns command object with the given name.
      *

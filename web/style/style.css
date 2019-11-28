@@ -68,3 +68,7 @@ html, body {
     background: no-repeat center center scroll;
     background-size: cover;
 }
+.star {
+    font-size: 25px;
+    color:gold;
+}
