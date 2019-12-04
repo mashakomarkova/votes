@@ -1,9 +1,13 @@
 package com.komarkova.voteSystem.db.entity;
 
+
 import java.sql.Blob;
 
 public class User extends Entity {
+
+
     private String login;
+
     private String email;
     private String password;
     private String firstName;

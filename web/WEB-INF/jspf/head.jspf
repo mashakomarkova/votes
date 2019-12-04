@@ -9,18 +9,31 @@
     <%--===========================================================================
     Bind CSS document.
     ===========================================================================--%>
-<%--    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/style/style.css"/>--%>
+    <%--    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/style/style.css"/>--%>
     <%--===========================================================================
     If you define http-equiv attribute, set the content type and the charset the same
     as you set them in a page directive.
     ===========================================================================--%>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<%--    <meta http-equiv="Refresh" content="60" />--%>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <%--    <meta http-equiv="Refresh" content="60" />--%>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-    <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+
+    <%--===========================================================================
+        UIKit
+===========================================================================--%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.2.4/dist/css/uikit.min.css"/>
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.4/dist/js/uikit-icons.min.js"></script>
 </head>
-<style><%@include file="/style/style.css"%></style>
+<style>
+    <%@include file="/style/style.css" %>
+</style>

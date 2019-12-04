@@ -3,13 +3,16 @@
 
 <fmt:setLocale value="${currentLocale}" scope="session"/>
 <fmt:setBundle basename="resources"/>
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default myHeader">
     <c:if test="${not empty user}">
 
         <div class="container-fluid">
             <ul class="nav navbar-nav">
                 <c:choose>
                     <c:when test="${userRole.name == 'admin' }">
+                        <li><a href="controller?command=manageUsers"><fmt:message key="manage.users"/></a></li>
+                        <li><a href="controller?command=userElections"><fmt:message key="all.elections"/></a></li>
+
                     </c:when>
                     <c:when test="${userRole.name == 'client' }">
                         <li><a href="controller?command=createElectionForm"><fmt:message key="create.election"/></a></li>

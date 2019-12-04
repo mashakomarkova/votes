@@ -18,4 +18,8 @@ public class Path {
     public static final String POLL_RESULT = "/WEB-INF/jsp/poll_result.jsp";
     public static final String MY_TRANSACTIONS = "/WEB-INF/jsp/client/my_transactions.jsp";
     public static final String FAVORITE_ELECTIONS = "/WEB-INF/jsp/client/favorite_elections.jsp";
+    public static final String MANAGEMENT_USERS = "/WEB-INF/jsp/admin/manage_users.jsp";
+    public static final String USERS_ELECTIONS = "/WEB-INF/jsp/admin/users_elections.jsp";
+    public static final String VIEW_USERS ="controller?command=manageUsers" ;
+    public static final String COMMAND_ADMIN_ELECTIONS = "controller?command=userElections";
 }

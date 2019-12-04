@@ -1,0 +1,26 @@
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
+
+    <tlib-version>1.2</tlib-version>
+    <short-name>myL</short-name>
+    <uri>/WEB-INF/myLib</uri>
+
+    <tag>
+        <name>topicTag</name>
+        <tag-class>com.komarkova.voteSystem.tag.PrintTopicTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>topics</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>topic</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+</taglib>

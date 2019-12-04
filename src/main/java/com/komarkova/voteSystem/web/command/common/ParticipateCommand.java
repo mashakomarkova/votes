@@ -16,12 +16,18 @@ import java.sql.SQLException;
 public class ParticipateCommand extends Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, AppException, SQLException, NoSuchAlgorithmException {
-        HttpSession session=request.getSession();
-        Long electionId= Long.parseLong(request.getParameter("elId"));
-        Long userId=Long.parseLong(session.getAttribute("user").toString());
-        Long choiceId= Long.parseLong(request.getParameter("participationChoice"));
-        DBManager.getInstance().participateInElection(userId, electionId, choiceId);
-        request.setAttribute("isParticipated", "true");
-        return Path.PAGE_SUCCESS;
+        HttpSession session = request.getSession();
+        Long electionId = Long.parseLong(request.getParameter("elId"));
+        Long userId = Long.parseLong(session.getAttribute("user").toString());
+        Long choiceId = Long.parseLong(request.getParameter("participationChoice"));
+        String forward = Path.PAGE_ERROR_PAGE;
+        if (!DBManager.getInstance().hasParticipatedInThisElection(userId, electionId)) {
+            DBManager.getInstance().participateInElection(userId, electionId, choiceId);
+            request.setAttribute("isParticipated", "true");
+            forward = Path.PAGE_SUCCESS;
+        } else {
+            request.setAttribute("hasAlreadyParticipated", "true");
+        }
+        return forward;
     }
 }

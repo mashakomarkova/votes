@@ -4,3 +4,6 @@
 JSTL functions tag library.
 ===========================================================================--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ taglib prefix="myL" uri="/WEB-INF/myLib" %>
+

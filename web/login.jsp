@@ -6,13 +6,12 @@
 <body>
 <%@ include file="/WEB-INF/jspf/header.jspf" %>
 
-
-<div class="container">
-    <div class="panel panel-default">
-        <div class="panel-heading">
+<div class="uk-container">
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1">
+        <div class="uk-card-header">
             <h3><fmt:message key="sign.in"/></h3>
         </div>
-        <div class="panel-body">
+        <div class="uk-card-body">
             <form action="controller" method="post">
                 <div class="form-group">
                     <input type="hidden" name="command" value="login"/>
@@ -27,9 +26,12 @@
                 <input class="btn btn-primary" type="submit" value="Login">
             </form>
         </div>
+        <div class="uk-card-footer">
+            <a href="register.jsp"><fmt:message key="register"/></a>
+        </div>
     </div>
 </div>
-<%@ include file="/WEB-INF/jspf/footer.jspf" %>
 
+<%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </body>
 </html>

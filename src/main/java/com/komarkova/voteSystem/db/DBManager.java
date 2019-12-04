@@ -1,6 +1,7 @@
 package com.komarkova.voteSystem.db;
 
 import com.komarkova.voteSystem.db.bean.PollResultBean;
+import com.komarkova.voteSystem.db.bean.UserElectionBean;
 import com.komarkova.voteSystem.db.entity.Choice;
 import com.komarkova.voteSystem.db.entity.Election;
 import com.komarkova.voteSystem.db.entity.Transaction;
@@ -38,20 +39,30 @@ public class DBManager {
 
 
     //SELECTS
+
+    private static final String SQL_FIND_ALL_USERS = "SELECT * FROM users where role_id=1";
+
+
     private static final String SQL_FIND_USER_BY_EMAIL = "SELECT * FROM users WHERE email=? AND password=MD5(?)";
+
+    private static final String SQL_PAGES_TOTAL = "SELECT count(*) as 'totalEl', count(*)/2 as 'pages' FROM elections where access='public';";
 
     private static final String SQL_FIND_ELECTION_ID = "SELECT LAST_INSERT_ID() as 'id';";
 
     private static final String SQL_FIND_ALL_ELECTIONS = "SELECT * FROM elections WHERE access='public'";
 
     private static final String SQL_FIND_TOP_ELECTIONS = "SELECT * FROM elections where access='public' and status='top' " +
-            "ORDER BY rand() LIMIT 5;";
+            "ORDER BY rand(), date_of_register desc LIMIT 5;";
+
+    private static final String SQL_FIND_USER_PARTICIPATED = "SELECT votes.user_id FROM votes, elections, users where votes.user_id=users.user_id " +
+            "and votes.election_id=elections.election_id and votes.user_id=? and votes.election_id=?;";
 
 
-    private static final String SQL_SEARCH_ELECTIONS = "SELECT elections.election_id, elections.question_text, elections.access," +
+    private static final String SQL_SEARCH_ELECTIONS = "SELECT distinct elections.election_id, elections.question_text, elections.access," +
             "elections.status, elections.user_id, elections.date_of_register, elections.city, elections.country" +
-            "  FROM elections, topics WHERE elections.question_text like ? OR elections.country like ? or elections.city like ? or" +
-            " topics.topic=? and elections.access='public' and topics.election_id=elections.election_id";
+            "  FROM elections, topics WHERE elections.access='public' and topics.election_id=elections.election_id and " +
+            "elections.question_text like CONCAT('%',?,'%') OR elections.country like ? or elections.city like ? or" +
+            " topics.topic=?";
 
     private static final String SQL_FIND_MY_ELECTIONS = "SELECT elections.election_id, elections.question_text, elections.access, elections.status," +
             " elections.user_id, elections.date_of_register, elections.city, elections.country FROM elections, users WHERE users.user_id=elections.user_id AND elections.user_id=?";
@@ -63,9 +74,14 @@ public class DBManager {
 
     private static final String SQL_FIND_USER_BY_EMAIL_ONLY = "SELECT * FROM users WHERE user_id=?";
 
-    private static final String SQL_SEE_RESULTS = "select distinct choice, count(*) as 'counts' from choices, votes where " +
+//    private static final String SQL_SEE_RESULTS = "select distinct choice, count(*) as 'counts' from choices, votes where " +
+//            "votes.choice_id=choices.choice_id and votes.election_id=(select election_id from " +
+//            "elections where election_id=?) group by votes.choice_id;";
+
+    private static final String SQL_SEE_RESULTS = "select t2.choice, t1.counts from (select choice, count(*) as 'counts' from choices, votes where " +
             "votes.choice_id=choices.choice_id and votes.election_id=(select election_id from " +
-            "elections where election_id=?) group by votes.choice_id;";
+            "elections where election_id=?) group by votes.choice_id) as t1 right outer join " +
+            "(select choice from choices where election_id=?) as t2 on (t1.choice=t2.choice);";
 
     private static final String SQL_FIND_TRANSACTIONS = "SELECT transactions.transaction_id, transactions.first_date, transactions.last_date, transactions.type, transactions.sum, " +
             "transactions.election_id FROM transactions, elections, users " +
@@ -74,13 +90,31 @@ public class DBManager {
 
     private static final String SQL_SORT_ELECTIONS = "SELECT * FROM elections ORDER BY ?;";
 
-    private static final String SQL_SORT_BY_POPULARITY = "SELECT elections.election_id,elections.question_text, elections.access, elections.status,\n" +
+    private static final String SQL_SORT_BY_POPULARITY = "SELECT elections.election_id,elections.question_text, elections.access, elections.status, " +
             "elections.user_id, elections.date_of_register, elections.city, elections.country " +
             "FROM elections, votes where votes.election_id=elections.election_id " +
             "group by votes.election_id having count(*);";
 
+    private static final String SQL_COUNT_OF_ELECTIONS_USER = "SELECT count(*) as 'counts' FROM elections, users " +
+            "where elections.user_id=users.user_id " +
+            "and elections.user_id=? and elections.election_id not in(select transactions.election_id from transactions, elections " +
+            "where transactions.election_id=elections.election_id and " +
+            "transactions.type='election' and transactions.last_date > curdate()) " +
+            "group by elections.user_id;";
+
+    private static final String SQL_FIND_ELECTION_BY_PAGE = "SELECT * FROM elections WHERE access='public' LIMIT ?,2";
+
+    private static final String SQL_ALL_VOTES_FOR_ELECTION = "SELECT count(*) as 'counts' FROM votes where election_id=?;";
+
+    private static final String SQL_USER_ELECTION = "SELECT elections.election_id, users.username, users.first_name, users.last_name, " +
+            "elections.question_text, elections.date_of_register, elections.city, " +
+            "elections.country from users, elections " +
+            "where elections.user_id=users.user_id and elections.access='public';";
+
     //UPDATES
     private static final String SQL_UPDATE_USER_EMAIL = "UPDATE users SET email=? WHERE user_id=?;";
+
+    private static final String SQL_UPDATE_ELECTION_STATUS = "update elections set status='top' where election_id=?";
 
     private static final String SQL_UPDATE_USER_ROLE = "UPDATE users SET role_id=? WHERE user_id=?;";
 
@@ -92,10 +126,15 @@ public class DBManager {
 
     private static final String SQL_UPDATE_USER = "UPDATE users SET first_name=?, last_name=?, user_picture=? WHERE email=?;";
 
+    private static final String SQL_UPDATE_ELECTION_TO_PLAIN="update elections set status='plain' where election_id in (" +
+            "select election_id from transactions where last_date <= curdate());";
+
     //DELETES
     private static final String SQL_DELETE_ELECTION_BY_ID = "DELETE FROM elections WHERE election_id=?";
 
     private static final String SQL_DELETE_ELECTIONS = "DELETE FROM elections WHERE CURDATE()-DATE(date_of_register)>=30";
+
+    private static final String SQL_DELETE_USER_BY_ID = "DELETE FROM users WHERE user_id=?";
 
 
     public static synchronized DBManager getInstance() throws DBException {
@@ -208,6 +247,20 @@ public class DBManager {
     }
 
 
+    private UserElectionBean extractUserElection(ResultSet rs) throws SQLException {
+        UserElectionBean userElectionBean = new UserElectionBean();
+        userElectionBean.setId(rs.getLong(Fields.ELECTION_ID));
+        userElectionBean.setUsername(rs.getString(Fields.USER_LOGIN));
+        userElectionBean.setFirstName(rs.getString(Fields.USER_FIRST_NAME));
+        userElectionBean.setLastName(rs.getString(Fields.USER_LAST_NAME));
+        userElectionBean.setQuestionText(rs.getString(Fields.ELECTION_QUESTION_TEXT));
+        userElectionBean.setDateOfRegister(rs.getString(Fields.ELECTION_DATE_OF_REGISTER));
+        userElectionBean.setCity(rs.getString(Fields.ELECTION_CITY));
+        userElectionBean.setCountry(rs.getString(Fields.ELECTION_COUNTRY));
+        return userElectionBean;
+    }
+
+
     private void close(Statement stmt) {
         if (stmt != null) {
             try {
@@ -312,7 +365,25 @@ public class DBManager {
             close(preparedStatement);
             close(con);
         }
+    }
 
+    public void updateElectionToPlain() {
+        Connection con = null;
+        Statement stmt = null;
+        try {
+            con = getConnection();
+
+            stmt = con.createStatement();
+            stmt.executeUpdate(SQL_UPDATE_ELECTION_TO_PLAIN);
+            con.commit();
+
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(stmt);
+            close(con);
+        }
     }
 
     public void updateUserRoleId(User user) {
@@ -336,6 +407,7 @@ public class DBManager {
             close(con);
         }
     }
+
     /**
      * Updates user's password
      *
@@ -448,22 +520,26 @@ public class DBManager {
     public void addTransaction(Long electionId, int days) {
         Connection con = null;
         PreparedStatement preparedStatement = null;
+        PreparedStatement preparedStatement2 = null;
         try {
             con = getConnection();
             preparedStatement = con.prepareStatement(SQL_ADD_TRANSACTION);
-
+            preparedStatement2 = con.prepareStatement(SQL_UPDATE_ELECTION_STATUS);
+            preparedStatement2.setLong(1, electionId);
             int k = 1;
             preparedStatement.setInt(k++, days);
             preparedStatement.setInt(k++, days);
             preparedStatement.setLong(k++, electionId);
 
             preparedStatement.executeUpdate();
+            preparedStatement2.executeUpdate();
             con.commit();
         } catch (DBException | SQLException e) {
             rollback(con);
             e.printStackTrace();
         } finally {
             close(preparedStatement);
+            close(preparedStatement2);
             close(con);
         }
     }
@@ -489,6 +565,30 @@ public class DBManager {
             close(con);
         }
     }
+
+    public List<User> findAllUsers() {
+        List<User> allUsers = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SQL_FIND_ALL_USERS);
+            while (rs.next()) {
+                allUsers.add(extractUser(rs));
+
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, stmt, rs);
+        }
+        return allUsers;
+    }
+
     public List<Election> findTopElections() {
         List<Election> elections = new ArrayList<>();
         Statement stmt = null;
@@ -511,6 +611,55 @@ public class DBManager {
         }
         return elections;
     }
+
+    public List<String> numberOfPages() {
+        List<String> elections = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SQL_PAGES_TOTAL);
+            while (rs.next()) {
+                elections.add(rs.getString("totalEl"));
+                elections.add(rs.getString("pages"));
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, stmt, rs);
+        }
+        return elections;
+    }
+
+    public List<Election> findAllElectionsByPage(Long pages, Long t) {
+        List<Election> elections = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        long res = t - (t / pages);
+        try {
+            con = getConnection();
+            int k = 1;
+            pstmt = con.prepareStatement(SQL_FIND_ELECTION_BY_PAGE);
+            pstmt.setLong(k++, res);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                elections.add(extractAllElections(rs));
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return elections;
+    }
+
     public List<Election> findAllElections() {
         List<Election> elections = new ArrayList<>();
         Statement stmt = null;
@@ -654,6 +803,27 @@ public class DBManager {
         return myTransactions;
     }
 
+    public List<UserElectionBean> findUsersElections() {
+        List<UserElectionBean> result = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SQL_USER_ELECTION);
+            while (rs.next()) {
+                result.add(extractUserElection(rs));
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, stmt, rs);
+        }
+        return result;
+    }
 
     public List<PollResultBean> seeResults(Long electionId) {
         List<PollResultBean> result = new ArrayList<>();
@@ -662,8 +832,10 @@ public class DBManager {
         Connection con = null;
         try {
             con = getConnection();
+            int k = 1;
             pstmt = con.prepareStatement(SQL_SEE_RESULTS);
-            pstmt.setLong(1, electionId);
+            pstmt.setLong(k++, electionId);
+            pstmt.setLong(k++, electionId);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(extractResultBean(rs));
@@ -729,6 +901,49 @@ public class DBManager {
             preparedStatement.setLong(k++, userId);
             preparedStatement.setLong(k++, electionId);
             preparedStatement.setLong(k++, choiceId);
+            preparedStatement.executeUpdate();
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement);
+            close(con);
+        }
+    }
+
+    public Long countElectionsUser(long userId) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet rs = null;
+        long res = 0;
+        try {
+            con = getConnection();
+            preparedStatement = con.prepareStatement(SQL_COUNT_OF_ELECTIONS_USER);
+            int k = 1;
+            preparedStatement.setLong(k++, userId);
+            rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                res = rs.getLong("counts");
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement);
+            close(con);
+        }
+        return res;
+    }
+
+    public void deleteUserById(Long userId) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            con = getConnection();
+            preparedStatement = con.prepareStatement(SQL_DELETE_USER_BY_ID);
+            preparedStatement.setLong(1, userId);
             preparedStatement.executeUpdate();
             con.commit();
         } catch (DBException | SQLException e) {
@@ -852,6 +1067,58 @@ public class DBManager {
             close(con, pstmt, rs);
         }
         return elections;
+    }
+
+
+    public boolean hasParticipatedInThisElection(Long userId, Long electionId) {
+        List<String> userParticipated = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(SQL_FIND_USER_PARTICIPATED);
+            int k = 1;
+            pstmt.setLong(k++, userId);
+            pstmt.setLong(k++, electionId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                userParticipated.add(rs.getString(Fields.ENTITY_ID));
+            }
+            con.commit();
+
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return userParticipated.size() >= 1;
+    }
+
+    public Long numberOfVotes(Long electionId) {
+        long res = 0L;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(SQL_ALL_VOTES_FOR_ELECTION);
+            int k = 1;
+            pstmt.setLong(k++, electionId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                res = rs.getLong(Fields.COUNTS);
+            }
+            con.commit();
+
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, pstmt, rs);
+        }
+        return res;
     }
 
 

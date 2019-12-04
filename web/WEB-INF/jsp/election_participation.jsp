@@ -7,22 +7,38 @@
 <%@ include file="/WEB-INF/jspf/header.jspf" %>
 
 <div class="container">
-    <form action="controller" method="post">
-        <input type="hidden" name="command" value="participateInElection">
-        <p>
-            ${election.questionText}
-        </p>
-        <input type="hidden" value="${election.id}" name="elId">
-        <c:forEach var="item" items="${choices}">
-            <div class="form-group">
-                <label>
-                        ${item.choice}
-                    <input type="radio" value="${item.id}" name="participationChoice" class="form-control">
-                </label>
+    <div class="panel-group">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-arrow-right"></span>
+                <h3 class="panel-title">
+                    ${election.questionText}
+                </h3>
             </div>
-        </c:forEach>
-        <input type="submit" value="<fmt:message key="submit"/>">
-    </form>
+            <div class="panel-body">
+                <form action="controller" method="post">
+                    <input type="hidden" name="command" value="participateInElection">
+
+                    <input type="hidden" value="${election.id}" name="elId">
+                    <ul class="list-group">
+                        <c:forEach var="item" items="${choices}">
+                            <li class="list-group-item">
+                                <div class="radio">
+                                    <label class="labelC">
+                                        <input type="radio" value="${item.id}" name="participationChoice">
+                                            ${item.choice}
+                                    </label>
+                                </div>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                    <div class="form-group text-center">
+                        <input type="submit" value="<fmt:message key="submit"/>" class="btn btn-primary btn-lg">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <%@ include file="/WEB-INF/jspf/footer.jspf" %>

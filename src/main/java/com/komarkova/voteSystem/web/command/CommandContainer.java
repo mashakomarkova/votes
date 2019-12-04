@@ -1,5 +1,9 @@
 package com.komarkova.voteSystem.web.command;
 
+import com.komarkova.voteSystem.web.command.admin.DeleteElectionAdminCommand;
+import com.komarkova.voteSystem.web.command.admin.DeleteUserByIdCommand;
+import com.komarkova.voteSystem.web.command.admin.ManageUsersCommand;
+import com.komarkova.voteSystem.web.command.admin.ViewUserElectionCommand;
 import com.komarkova.voteSystem.web.command.client.*;
 import com.komarkova.voteSystem.web.command.common.*;
 
@@ -38,6 +42,11 @@ public class CommandContainer {
         commands.put("addToFavorites", new AddFavoritesCommand());
         commands.put("favoriteElections", new ViewFavoriteElections());
         commands.put("confirmEmail", new ConfirmEmailCommand());
+        commands.put("pageElections", new ViewElectionsByPageCommand());
+        commands.put("manageUsers", new ManageUsersCommand());
+        commands.put("deleteUserById", new DeleteUserByIdCommand());
+        commands.put("userElections", new ViewUserElectionCommand());
+        commands.put("deleteElectionAdmin", new DeleteElectionAdminCommand());
     }
     /**
      * Returns command object with the given name.

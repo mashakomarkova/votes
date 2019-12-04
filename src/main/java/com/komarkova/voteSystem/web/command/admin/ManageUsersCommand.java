@@ -1,8 +1,8 @@
-package com.komarkova.voteSystem.web.command.client;
+package com.komarkova.voteSystem.web.command.admin;
 
 import com.komarkova.voteSystem.Path;
 import com.komarkova.voteSystem.db.DBManager;
-import com.komarkova.voteSystem.db.entity.Election;
+import com.komarkova.voteSystem.db.entity.User;
 import com.komarkova.voteSystem.exception.AppException;
 import com.komarkova.voteSystem.web.command.Command;
 
@@ -14,15 +14,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SortElectionsCommand extends Command {
+public class ManageUsersCommand extends Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, AppException, SQLException, NoSuchAlgorithmException {
+        List<User> allUsers = DBManager.getInstance().findAllUsers();
+        request.setAttribute("allUsers",allUsers);
 
-        String option = request.getParameter("option");
-        List<Election> elections = DBManager.getInstance().sortAllElections(option);
-        request.setAttribute("topElections", elections);
-        request.setAttribute("elections", elections);
-
-        return Path.PAGE_ALL_ELECTIONS;
+        return Path.MANAGEMENT_USERS;
     }
 }

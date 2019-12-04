@@ -24,9 +24,20 @@ public class CreateElectionCommand extends Command {
         String topic = request.getParameter("topic");
         String[] choices = request.getParameterValues("choices");
         String user = session.getAttribute("user").toString();
-        Long electionId = DBManager.getInstance().createElection(questionText, access, Long.parseLong(user), city, country);
-        DBManager.getInstance().addTopic(topic, electionId);
-        DBManager.getInstance().createChoice(choices, electionId);
-        return Path.PAGE_PROFILE;
+        Long countOfElections = DBManager.getInstance().countElectionsUser(Long.parseLong(user));
+        String forward = Path.PAGE_ERROR_PAGE;
+        request.setAttribute("electionsAreOver","true");
+        if (countOfElections < 5) {
+            Long electionId = DBManager.getInstance().createElection(questionText, access, Long.parseLong(user), city, country);
+            DBManager.getInstance().addTopic(topic, electionId);
+            DBManager.getInstance().createChoice(choices, electionId);
+            request.setAttribute("electionCreated", "true");
+            forward = Path.PAGE_SUCCESS;
+        }
+        else {
+            Long electionId = DBManager.getInstance().createElection(questionText, "", Long.parseLong(user), city, country);
+            request.setAttribute("electionId",electionId);
+        }
+        return forward;
     }
 }

@@ -279,7 +279,7 @@
             <input type="text" class="form-control" name="city">
         </label>
         <label><fmt:message key="select.topic"/>
-            <input type="text" class="form-control" name="topic">
+            <myL:topicTag/>
         </label>
         <input class="btn btn-primary" type="submit" value="<fmt:message key="search"/>">
     </form>
@@ -300,6 +300,7 @@
         <input type="submit" class="btn btn-primary" value="<fmt:message key="sort"/>">
     </form>
 
+
     <h2><fmt:message key="top.votes"/></h2>
     <table class="table table-striped custab">
         <tr>
@@ -309,31 +310,68 @@
             <td><fmt:message key="participate"/></td>
         </tr>
         <c:set var="k" value="0"/>
+
         <c:forEach var="item" items="${topElections}" varStatus="loop">
+
             <c:set var="k" value="${k+1}"/>
-            <tr>
-                <td><c:out value="${k}"/></td>
-                <td>${item.questionText}</td>
-                <td>
-                        <c:choose>
-                            <c:when test="${fn:contains(favoriteElections,item)}">
-                                <a href="controller?command=addToFavorites&electionRemove=${item.id}"> <span
-                                        class="star glyphicon glyphicon-star">
+            <c:if test="${item.status eq 'top'}">
+
+                <c:choose>
+                    <c:when test="${fn:contains(participatedElections,item)}">
+                        <tr class="success">
+                            <td><c:out value="${k}"/></td>
+                            <td>${item.questionText}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${fn:contains(favoriteElections,item)}">
+                                        <a href="controller?command=addToFavorites&electionRemove=${item.id}"> <span
+                                                class="star glyphicon glyphicon-star">
                             </span>
-                                </a>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="controller?command=addToFavorites&election=${item.id}"> <span
-                                        class="star glyphicon glyphicon-star-empty">
+                                        </a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="controller?command=addToFavorites&election=${item.id}"> <span
+                                                class="star glyphicon glyphicon-star-empty">
                             </span>
+                                        </a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <a href="controller?command=viewPollResults&elId=${item.id}"><fmt:message
+                                        key="view.results"/>
                                 </a>
-                            </c:otherwise>
-                        </c:choose>
-                </td>
-                <td><a href="controller?command=findElectionById&elId=${item.id}"><fmt:message
-                        key="participate"/></a>
-                </td>
-            </tr>
+                            </td>
+
+                        </tr>
+                    </c:when>
+                    <c:otherwise>
+                        <tr>
+                            <td><c:out value="${k}"/></td>
+                            <td>${item.questionText}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${fn:contains(favoriteElections,item)}">
+                                        <a href="controller?command=addToFavorites&electionRemove=${item.id}"> <span
+                                                class="star glyphicon glyphicon-star">
+                            </span>
+                                        </a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="controller?command=addToFavorites&election=${item.id}"> <span
+                                                class="star glyphicon glyphicon-star-empty">
+                            </span>
+                                        </a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td><a href="controller?command=findElectionById&elId=${item.id}"><fmt:message
+                                    key="participate"/></a>
+                            </td>
+                        </tr>
+                    </c:otherwise>
+                </c:choose>
+            </c:if>
         </c:forEach>
     </table>
 
@@ -347,12 +385,13 @@
         </tr>
         <c:set var="k" value="0"/>
         <c:forEach var="item" items="${elections}" varStatus="loop">
-            <c:if test="${item.status=='plain'}">
-                <c:set var="k" value="${k+1}"/>
-                <tr>
-                    <td><c:out value="${k}"/></td>
-                    <td>${item.questionText}</td>
-                    <td>
+            <c:set var="k" value="${k+1}"/>
+            <c:choose>
+                <c:when test="${fn:contains(participatedElections,item)}">
+                    <tr class="success">
+                        <td><c:out value="${k}"/></td>
+                        <td>${item.questionText}</td>
+                        <td>
                             <c:choose>
                                 <c:when test="${fn:contains(favoriteElections,item)}">
                                     <a href="controller?command=addToFavorites&electionRemove=${item.id}"> <span
@@ -367,17 +406,64 @@
                                     </a>
                                 </c:otherwise>
                             </c:choose>
+                        </td>
+                        <td>
+                            <a href="controller?command=viewPollResults&elId=${item.id}"><fmt:message
+                                    key="view.results"/>
+                            </a>
+                        </td>
 
-                    </td>
-                    <td><a href="controller?command=findElectionById&elId=${item.id}"><fmt:message
-                            key="participate"/></a>
-                    </td>
-                </tr>
-            </c:if>
+                    </tr>
+                </c:when>
+                <c:otherwise>
+                    <tr>
+                        <td><c:out value="${k}"/></td>
+                        <td>${item.questionText}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${fn:contains(favoriteElections,item)}">
+                                    <a href="controller?command=addToFavorites&electionRemove=${item.id}"> <span
+                                            class="star glyphicon glyphicon-star">
+                            </span>
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="controller?command=addToFavorites&election=${item.id}"> <span
+                                            class="star glyphicon glyphicon-star-empty">
+                            </span>
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td><a href="controller?command=findElectionById&elId=${item.id}"><fmt:message
+                                key="participate"/></a>
+                        </td>
+                    </tr>
+                </c:otherwise>
+            </c:choose>
+
         </c:forEach>
-
     </table>
-
+    <ul class="pagination">
+        <c:forEach var="i" begin="1" end="${pages}">
+            <c:choose>
+                <c:when test="${pa eq i}">
+                    <li class="active">
+                        <a href="controller?command=pageElections&p=${i}&t=${total}&numOfPages=${pages}">${i}</a>
+                    </li>
+                </c:when>
+                <c:otherwise>
+                    <li>
+                        <a href="controller?command=pageElections&p=${i}&t=${total}&numOfPages=${pages}">${i}</a>
+                    </li>
+                </c:otherwise>
+            </c:choose>
+        </c:forEach>
+    </ul>
+    <br>
+    <br>
+    <br>
+    <br>
 </div>
 <%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </body>

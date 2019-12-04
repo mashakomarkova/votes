@@ -17,6 +17,8 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegisterCommand extends Command {
     @Override
@@ -59,5 +61,20 @@ public class RegisterCommand extends Command {
             e.printStackTrace();
         }
         return Path.PAGE_SUCCESS;
+    }
+
+    private boolean validateRegistration(String username, String email, String password, String first_name,  String last_name){
+        String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+)*@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+
+        if ("".equals(username) || "".equals(email) ||"".equals(password) || "".equals(first_name)||"".equals(last_name)){
+            return false;
+        }
+        else if(!matcher.matches()){
+            return false;
+        }
+
+        return true;
     }
 }

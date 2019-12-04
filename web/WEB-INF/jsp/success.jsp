@@ -20,6 +20,9 @@
 <c:if test="${emailConfirmed}">
     <fmt:message key="data.success"/>
 </c:if>
+<c:if test="${electionCreated}">
+    <fmt:message key="data.success"/>
+</c:if>
 <%@ include file="/WEB-INF/jspf/footer.jspf" %>
 </body>
 </html>

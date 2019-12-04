@@ -22,6 +22,8 @@ public class SearchCommand extends Command {
         String city = request.getParameter("city");
         String topic = request.getParameter("topic");
         List<Election> elections = DBManager.getInstance().searchElections(keys, country, city, topic);
+        List<Election> topElections = DBManager.getInstance().searchElections(keys, country, city, topic);
         request.setAttribute("elections", elections);
+        request.setAttribute("topElections", topElections);
         return Path.PAGE_ALL_ELECTIONS; }
 }

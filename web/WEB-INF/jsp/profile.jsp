@@ -39,7 +39,7 @@
                             <c:otherwise>
                                 <%--                                <div id="image" style="background-image: url('data:image/png;base64,${userImage}')"  class="img-circle img-responsive"></div>--%>
                                 <img id="image" src="data:image/png;base64,${userImage}"
-                                     class="img-circle img-responsive">
+                                     >
                                 <div class="browse-button">
                                     <input id="imgInput" type="file" name="file" class="form-control browse-input"
                                            onchange="readURL(this);"

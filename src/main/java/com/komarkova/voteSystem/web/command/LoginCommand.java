@@ -19,6 +19,8 @@ public class LoginCommand extends Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, AppException, SQLException, NoSuchAlgorithmException {
 
+
+
         HttpSession session = request.getSession();
         DBManager manager = DBManager.getInstance();
         String email = Param.getParamUTF8(request.getParameter("email"));
@@ -28,11 +30,13 @@ public class LoginCommand extends Command {
         if (email.equals("") || password.equals("") || email.isEmpty() || password.isEmpty()) {
             messageLogin = "Login/password cannot be empty";
             request.setAttribute("messageLogin", messageLogin);
+            request.setAttribute("emptyLogin", "true");
             throw new AppException("Login/password cannot be empty");
         }
        User user = manager.findUserByEmailAndPassword(email, password);
         if (user == null) {
             request.setAttribute("messageLogin", messageLogin);
+            request.setAttribute("incorrectUser","true");
             throw new AppException("Cannot find user with such login/password");
         }
 
