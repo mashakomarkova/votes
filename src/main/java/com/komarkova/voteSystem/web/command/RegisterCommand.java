@@ -74,7 +74,6 @@ public class RegisterCommand extends Command {
         else if(!matcher.matches()){
             return false;
         }
-
         return true;
     }
 }
