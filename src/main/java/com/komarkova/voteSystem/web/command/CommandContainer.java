@@ -6,6 +6,7 @@ import com.komarkova.voteSystem.web.command.admin.ManageUsersCommand;
 import com.komarkova.voteSystem.web.command.admin.ViewUserElectionCommand;
 import com.komarkova.voteSystem.web.command.client.*;
 import com.komarkova.voteSystem.web.command.common.*;
+import com.komarkova.voteSystem.web.restCommand.*;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,7 +27,7 @@ public class CommandContainer {
         commands.put("updatePass", new UpdatePasswordCommand());
         commands.put("updateSettings", new UpdateSettings());
         commands.put("createElectionForm", new CreateElectionFormCommand());
-        commands.put("createElection", new CreateElectionCommand());
+        commands.put("createElectionCommand", new CreateElectionCommand());
         commands.put("viewAllElections", new ViewAllElectionsCommand());
         commands.put("findElectionById", new FindElectionCommand());
         commands.put("participateInElection", new ParticipateCommand());
@@ -47,6 +48,18 @@ public class CommandContainer {
         commands.put("deleteUserById", new DeleteUserByIdCommand());
         commands.put("userElections", new ViewUserElectionCommand());
         commands.put("deleteElectionAdmin", new DeleteElectionAdminCommand());
+        commands.put("updatePicture", new UpdatePictureCommand());
+        commands.put("successLanguage", new SuccessLanCommand());
+
+        commands.put("findU", new FindUserCommand());
+        commands.put("cer", new CreateElectionRestCommand());
+        commands.put("viewAllElectionsRest", new ViewAllElectionsRestCommand());
+        commands.put("findElectionRest", new FindElectionRestCommand());
+        commands.put("participateRest", new ParticipateInElectionRest());
+        commands.put("viewMyElectionsRest", new ViewMyElectionsRestCommand());
+        commands.put("viewMyElectionRest", new ViewMyElectionRestCommand());
+        commands.put("viewMyTransactionsRest", new ViewMyTransactionsRestCommand());
+        commands.put("updateUserRest", new UpdateUserRestCommand());
     }
     /**
      * Returns command object with the given name.

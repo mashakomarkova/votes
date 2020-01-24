@@ -5,9 +5,18 @@
 <%@ include file="/WEB-INF/jspf/head.jspf" %>
 <body>
 <%@ include file="/WEB-INF/jspf/header.jspf" %>
+<script>
+    function openForm(){
+        document.getElementById("myForm").style.display = "block";
+    }
+    function closeForm() {
+        document.getElementById("myForm").style.display = "none";
 
-<div class="container">
-    <table class="table table-striped custab">
+    }
+
+</script>
+<div class="uk-container">
+    <table class="uk-table uk-table-striped">
         <tr>
             <td><fmt:message key="number"/></td>
             <td><fmt:message key="login"/></td>
@@ -28,7 +37,6 @@
                 <td>${item.lastName}</td>
                 <td><a href="controller?command=deleteUserById&uId=${item.id}"><fmt:message
                         key="delete.user"/></a></td>
-
             </tr>
         </c:forEach>
     </table>

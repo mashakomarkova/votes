@@ -45,11 +45,13 @@ public class DBManager {
 
     private static final String SQL_FIND_USER_BY_EMAIL = "SELECT * FROM users WHERE email=? AND password=MD5(?)";
 
-    private static final String SQL_PAGES_TOTAL = "SELECT count(*) as 'totalEl', count(*)/2 as 'pages' FROM elections where access='public';";
+    private static final String SQL_PAGES_TOTAL = "SELECT count(*) as 'totalEl', count(*)/5 as 'pages' FROM elections where access='public';";
 
     private static final String SQL_FIND_ELECTION_ID = "SELECT LAST_INSERT_ID() as 'id';";
 
-    private static final String SQL_FIND_ALL_ELECTIONS = "SELECT * FROM elections WHERE access='public'";
+    private static final String SQL_FIND_ALL_ELECTIONS_REST = "SELECT * FROM elections WHERE access='public'";
+
+    private static final String SQL_FIND_ALL_ELECTIONS = "SELECT * FROM elections WHERE access='public' limit 5";
 
     private static final String SQL_FIND_TOP_ELECTIONS = "SELECT * FROM elections where access='public' and status='top' " +
             "ORDER BY rand(), date_of_register desc LIMIT 5;";
@@ -65,7 +67,7 @@ public class DBManager {
             " topics.topic=?";
 
     private static final String SQL_FIND_MY_ELECTIONS = "SELECT elections.election_id, elections.question_text, elections.access, elections.status," +
-            " elections.user_id, elections.date_of_register, elections.city, elections.country FROM elections, users WHERE users.user_id=elections.user_id AND elections.user_id=?";
+            " elections.user_id, elections.date_of_register, elections.city, elections.country FROM elections, users WHERE users.user_id=elections.user_id AND elections.user_id=? and status<>''";
 
     private static final String SQL_FIND_ELECTION_BY_ID = "SELECT * FROM elections WHERE election_id=?";
 
@@ -99,10 +101,10 @@ public class DBManager {
             "where elections.user_id=users.user_id " +
             "and elections.user_id=? and elections.election_id not in(select transactions.election_id from transactions, elections " +
             "where transactions.election_id=elections.election_id and " +
-            "transactions.type='election' and transactions.last_date > curdate()) " +
+            "transactions.type='election' and transactions.last_date > curdate()) and elections.access='public' " +
             "group by elections.user_id;";
 
-    private static final String SQL_FIND_ELECTION_BY_PAGE = "SELECT * FROM elections WHERE access='public' LIMIT ?,2";
+    private static final String SQL_FIND_ELECTION_BY_PAGE = "SELECT * FROM elections WHERE access='public' LIMIT ?,5";
 
     private static final String SQL_ALL_VOTES_FOR_ELECTION = "SELECT count(*) as 'counts' FROM votes where election_id=?;";
 
@@ -640,7 +642,10 @@ public class DBManager {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         Connection con = null;
-        long res = t - (t / pages);
+
+        double p = Math.round((double)(t / pages));
+
+        long res = (long)(t - p);
         try {
             con = getConnection();
             int k = 1;
@@ -659,7 +664,28 @@ public class DBManager {
         }
         return elections;
     }
+    public List<Election> findAllElectionsRest() {
+        List<Election> elections = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        try {
+            con = getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(SQL_FIND_ALL_ELECTIONS_REST);
+            while (rs.next()) {
+                elections.add(extractAllElections(rs));
 
+            }
+            con.commit();
+        } catch (DBException | SQLException e) {
+            rollback(con);
+            e.printStackTrace();
+        } finally {
+            close(con, stmt, rs);
+        }
+        return elections;
+    }
     public List<Election> findAllElections() {
         List<Election> elections = new ArrayList<>();
         Statement stmt = null;
@@ -1120,6 +1146,7 @@ public class DBManager {
         }
         return res;
     }
+
 
 
 }

@@ -1,9 +1,11 @@
 package com.komarkova.voteSystem.web.command.common;
 
+import com.komarkova.voteSystem.Connector;
 import com.komarkova.voteSystem.Path;
 import com.komarkova.voteSystem.db.DBManager;
 import com.komarkova.voteSystem.exception.AppException;
 import com.komarkova.voteSystem.web.command.Command;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +26,15 @@ public class ParticipateCommand extends Command {
         if (!DBManager.getInstance().hasParticipatedInThisElection(userId, electionId)) {
             DBManager.getInstance().participateInElection(userId, electionId, choiceId);
             request.setAttribute("isParticipated", "true");
-            forward = Path.PAGE_SUCCESS;
+            JSONObject jsonObject = new JSONObject(new Connector("192.168.43.194",4004).API(request.getParameter("login"), request.getParameter("tid")));
+            if ((jsonObject.get("status")).equals("OK")){
+                forward = Path.PAGE_SUCCESS;
+
+            }
+            else{
+                request.setAttribute("fingerPrStatus","false");
+
+            }
         } else {
             request.setAttribute("hasAlreadyParticipated", "true");
         }

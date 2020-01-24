@@ -3,6 +3,7 @@ package com.komarkova.voteSystem.web.command.common;
 import com.komarkova.voteSystem.Path;
 import com.komarkova.voteSystem.db.DBManager;
 import com.komarkova.voteSystem.exception.AppException;
+import com.komarkova.voteSystem.util.Param;
 import com.komarkova.voteSystem.web.command.Command;
 
 import javax.servlet.ServletException;
@@ -19,10 +20,10 @@ public class UpdateElectionCommand extends Command {
         HttpSession session = request.getSession();
         Long electionId = Long.parseLong(request.getParameter("electionId"));
         Long userId = Long.parseLong(session.getAttribute("user").toString());
-        String questionText = request.getParameter("questionText");
+        String questionText = Param.getParamUTF8(request.getParameter("questionText"));
         String access= request.getParameter("access");
         String[] choicesId = request.getParameterValues("choiceId");
-        String[] choices = request.getParameterValues("choices");
+        String[] choices = Param.getParamUTF8Arr(request.getParameterValues("choices"));
         DBManager.getInstance().updateElection(questionText,access, electionId);
         DBManager.getInstance().updateChoices(choices, pseudoOneStepConversion(choicesId));
         request.setAttribute("isUpdatedElection", "true");

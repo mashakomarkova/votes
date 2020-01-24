@@ -23,7 +23,17 @@ public class FindElectionCommand extends Command {
         List<Choice> choices = DBManager.getInstance().findChoices(electionId);
         request.setAttribute("choices",choices);
         request.setAttribute("election", election);
-
+        String choicesText = "";
+        String choicesId = "";
+        for (int i = 0; i < choices.size(); i++){
+            choicesText+=choices.get(i).getChoice() + "<separator>";
+        }
+        for (int i = 0; i < choices.size(); i++){
+            choicesId+=choices.get(i).getId() + "<separator>";
+        }
+        response.setHeader("electionText",election.getQuestionText());
+        response.setHeader("choicesText",choicesText);
+        response.setHeader("choicesId",choicesId);
         return Path.ELECTION_PARTICIPATION;
     }
 }

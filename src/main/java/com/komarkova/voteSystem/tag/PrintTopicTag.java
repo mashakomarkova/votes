@@ -11,10 +11,10 @@ public class PrintTopicTag  extends SimpleTagSupport{
     private static final String topic = "topic";
 
     @Override
-    public void doTag() throws JspException {
+    public void doTag() {
         JspWriter out = getJspContext().getOut();
         try {
-            out.println("<select name=\"" + topic + "\">");
+            out.println("<select class=\"uk-select\" name=\"" + topic + "\">");
             for (String t : topics) {
                 out.println("<option>" + t + "</option>");
             }

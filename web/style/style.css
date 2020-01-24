@@ -139,7 +139,7 @@ html, body {
 =====================================================
 */
 .banner {
-    margin-top: -20px;
+    margin-top: -10px;
     background-position: center center;
     background-attachment: fixed;
     background-size: cover;
@@ -171,6 +171,7 @@ html, body {
 
 .banner .banner-content h1 span {
     color: #2dcc70;
+
 }
 
 .banner .banner-content p {
@@ -188,7 +189,11 @@ html, body {
     position: relative;
     background-size: cover;
     background-position: center;
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+
 
 

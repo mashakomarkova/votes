@@ -7,8 +7,8 @@
 <%@ include file="/WEB-INF/jspf/header.jspf" %>
 
 
-<div class="container">
-    <table class="table table-striped custab">
+<div class="uk-container">
+    <table class="uk-table uk-table-striped">
         <tr>
             <td><fmt:message key="number"/></td>
             <td><fmt:message key="login"/></td>

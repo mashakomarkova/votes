@@ -15,10 +15,8 @@
             <div class="row">
                 <div class="col-md-10 col-md-offset-1 text-center">
                     <h1>Effective <span>&</span> Creative</h1>
-                    <p>We are Effective & Creative agency are many variations of passages of Lorem Ipsum available, but the majority have suffered.
+                    <p>We are a vote system where you can create different private and public elections.
                     </p>
-                    <a href="#services" class="btn btn-primary page-scroll" role="button">Our Services</a>
-                    <a href="#" class="btn btn-primary" role="button">Purchase Now</a>
                 </div>
             </div>
         </div>

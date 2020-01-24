@@ -12,6 +12,25 @@ public class Param {
         input = new String(bytes, StandardCharsets.UTF_8);
         return input;
     }
+    public static String[] getParamUTF8Arr(String[] input){
+        String[] res=new String[input.length];
+        for (int i = 0; i < res.length; i++){
+            res[i]= getParamUTF8(input[i]);
+        }
+        return res;
+    }
+
+    public static boolean isUnique(String[] input){
+        for (int i = 0; i < input.length; i++){
+            for (int j = i+1; j < input.length; j++){
+                if (input[i].equals(input[j])){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static byte[] toByteArray(InputStream in) throws IOException {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();

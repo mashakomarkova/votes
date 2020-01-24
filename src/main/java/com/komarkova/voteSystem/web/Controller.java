@@ -4,7 +4,6 @@ import com.komarkova.voteSystem.Path;
 import com.komarkova.voteSystem.exception.AppException;
 import com.komarkova.voteSystem.web.command.Command;
 import com.komarkova.voteSystem.web.command.CommandContainer;
-import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;

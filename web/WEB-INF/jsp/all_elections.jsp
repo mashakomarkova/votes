@@ -263,31 +263,35 @@
         });
     });
 </script>
-<div class="container">
+<div class="uk-container">
 
-    <form action="controller" method="post" class="form-inline">
+    <form action="controller" method="post">
         <input type="hidden" name="command" value="search">
         <input type="hidden" name="elections" value="${elections}">
-        <label><fmt:message key="search"/>
-            <input class="form-control" type="text" name="keys">
-        </label>
-        <label><fmt:message key="country"/>
-            <input type="text" class="form-control" name="country" id="tags">
+        <div class="uk-child-width-expand@s uk-text-center" uk-grid>
+            <label for="keys"><fmt:message key="search"/> </label>
+            <input class="uk-input" type="text" name="text" id="keys">
 
-        </label>
-        <label><fmt:message key="city"/>
-            <input type="text" class="form-control" name="city">
-        </label>
-        <label><fmt:message key="select.topic"/>
+            <label class="uk-form-label" for="tags"><fmt:message key="country"/></label>
+            <input type="text" class="uk-input" name="country" id="tags">
+
+            <label for="city" class="uk-form-label"><fmt:message key="city"/></label>
+            <input type="text" class="uk-input" name="city" id="city">
+
+            <label class="uk-form-label"><fmt:message key="select.topic"/></label>
             <myL:topicTag/>
-        </label>
-        <input class="btn btn-primary" type="submit" value="<fmt:message key="search"/>">
+
+            <label for="bt" class="uk-form-label">
+                <input class="uk-button uk-button-primary" type="submit" id="bt"
+                       value="<fmt:message key="search"/>">
+            </label>
+        </div>
     </form>
 
     <form action="controller" method="post">
         <input type="hidden" name="command" value="sort">
-        <div class="form-group">
-            <select name="option" class="form-control">
+        <div class="uk-margin">
+            <select name="option" class="uk-select">
                 <option value="date_of_register">
                     <fmt:message key="recent"/>
                 </option>
@@ -297,12 +301,12 @@
             </select>
         </div>
 
-        <input type="submit" class="btn btn-primary" value="<fmt:message key="sort"/>">
+        <input type="submit" class="uk-button uk-button-primary" value="<fmt:message key="sort"/>">
     </form>
 
 
     <h2><fmt:message key="top.votes"/></h2>
-    <table class="table table-striped custab">
+    <table class="uk-table uk-table-striped">
         <tr>
             <td><fmt:message key="number"/></td>
             <td><fmt:message key="question.text"/></td>
@@ -376,7 +380,7 @@
     </table>
 
     <h2><fmt:message key="plain.votes"/></h2>
-    <table class="table table-striped custab">
+    <table class="uk-table uk-table-striped">
         <tr>
             <td><fmt:message key="number"/></td>
             <td><fmt:message key="question.text"/></td>
@@ -444,6 +448,29 @@
 
         </c:forEach>
     </table>
+
+
+    <table>
+        <tr>
+            <td><fmt:message key="number"/></td>
+            <td><fmt:message key="question.text"/></td>
+        </tr>
+        <c:set var="k" value="0"/>
+
+        <c:forEach var="item" items="${topElections}" varStatus="loop">
+
+            <c:set var="k" value="${k+1}"/>
+
+            <tr class="success">
+                <td><c:out value="${k}"/></td>
+                <td>${item.questionText}</td>
+            </tr>
+
+        </c:forEach>
+    </table>
+
+
+
     <ul class="pagination">
         <c:forEach var="i" begin="1" end="${pages}">
             <c:choose>

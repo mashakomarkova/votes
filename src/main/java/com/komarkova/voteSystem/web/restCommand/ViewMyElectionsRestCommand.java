@@ -1,4 +1,4 @@
-package com.komarkova.voteSystem.web.command.client;
+package com.komarkova.voteSystem.web.restCommand;
 
 import com.komarkova.voteSystem.Path;
 import com.komarkova.voteSystem.db.DBManager;
@@ -14,16 +14,24 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SearchCommand extends Command {
+public class ViewMyElectionsRestCommand extends Command {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, AppException, SQLException, NoSuchAlgorithmException {
-        String keys = request.getParameter("text");
-        String country = request.getParameter("country");
-        String city = request.getParameter("city");
-        String topic = request.getParameter("topic");
-        List<Election> elections = DBManager.getInstance().searchElections(keys, country, city, topic);
-        List<Election> topElections = DBManager.getInstance().searchElections(keys, country, city, topic);
-        request.setAttribute("elections", elections);
-        request.setAttribute("topElections", topElections);
-        return Path.PAGE_ALL_ELECTIONS; }
+
+        Long userId = Long.parseLong(request.getParameter("user"));
+        List<Election> myEl = DBManager.getInstance().findMyElections(userId);
+
+        String myElections = "";
+        for (Election e : myEl) {
+            myElections += e.getQuestionText() + "<separator>";
+        }
+
+        String elId = "";
+        for (Election e : myEl) {
+            elId += e.getId() + "<separator>";
+        }
+        response.setHeader("myElections",myElections);
+        response.setHeader("electionsId",elId);
+        return Path.REST_PAGE;
+    }
 }

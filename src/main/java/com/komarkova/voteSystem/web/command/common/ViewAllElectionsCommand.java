@@ -37,6 +37,7 @@ public class ViewAllElectionsCommand extends Command {
         request.setAttribute("total", total);
         request.setAttribute("pages", pages);
         request.setAttribute("topElections", topElections);
+
         return Path.PAGE_ALL_ELECTIONS;
     }
 }
